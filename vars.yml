@@ -1,12 +1,14 @@
 project_name: ormuco_project
 
-install_root: /home/python_projects
+source_repo: /home/python_projects/
+
+install_root: /var/www/python_projects/
 
 wsgi_module: ormuco_project.wsgi
 
 pythonpath: "{{ install_root }}/{{ project_name }}/ormuco_project"
 
-project_repo: https://github.com/hariza17/ormuco_project.git
+project_repo: https://github.com/kevinjulio93/flaskapp.git
 
 ssh_private_key: ~/.ssh/key
 
@@ -23,5 +25,6 @@ system_packages:
   - python-pip
   - python-dev
   - python-psycopg2
+  - python-virtualenv
   - apache2
   - libapache2-mod-wsgi

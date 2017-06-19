@@ -1,4 +1,6 @@
 - hosts: servers
+  remote_user: root
+  sudo: yes
   vars_files:
     - vars.yml
 
@@ -6,6 +8,40 @@
     - name: Install system packages
       apt: pkg={{ item }} update-cache=yes
       with_items: "{{ system_packages }}"
+
+    - name: Config enable wsgi module apache
+      apache2_module:
+        state: present
+        name: wsgi
+
+#    - name: Clone project repo
+#      git:
+#        repo: '{{ project_repo }}'
+#        dest: '{{ source_repo }}'
+#
+#    - name: Move project to /var/www
+#      command: mv -v {{ source_repo }} /var/www/
+
+    - name: Install pip requirements
+      pip:
+        requirements: '{{ install_root }}requirements.txt'
+        virtualenv: '/venv'
+
+    - name: copy apache config
+      template: src=files/FlaskApp.conf dest=/etc/apache2/sites-available/FlaskApp.conf
+
+    - name: Create the .wsgi File
+      template: src=files/flaskapp.wsgi dest=/var/www/python_projects/flaskapp.wsgi
+
+    - name: a2ensite FlaskApp
+      command: a2ensite FlaskApp
+
+    - name: restart apache
+      service: name=apache2 state=restarted
+
+
+
+
 
 
 #- include: deploy.yml
