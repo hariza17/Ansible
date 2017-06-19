@@ -1,0 +1,27 @@
+project_name: ormuco_project
+
+install_root: /home/python_projects
+
+wsgi_module: ormuco_project.wsgi
+
+pythonpath: "{{ install_root }}/{{ project_name }}/ormuco_project"
+
+project_repo: https://github.com/hariza17/ormuco_project.git
+
+ssh_private_key: ~/.ssh/key
+
+static_root: "{{ install_root }}/{{ project_name }}/static"
+
+server_name: localhost localhost:8000
+
+db_name: ormuco
+db_user: ormuco
+db_password: ormuco
+
+system_packages:
+  - git
+  - python-pip
+  - python-dev
+  - python-psycopg2
+  - apache2
+  - libapache2-mod-wsgi
