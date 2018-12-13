@@ -21,10 +21,11 @@ db_user: ormuco
 db_password: ormuco
 
 system_packages:
+  - apt-transport-https
+  - ca-certificates
+  - curl
+  - software-properties-common
   - git
   - python-pip
   - python-dev
   - python-psycopg2
-  - python-virtualenv
-  - apache2
-  - libapache2-mod-wsgi

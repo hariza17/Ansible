@@ -1,47 +1,73 @@
-- hosts: servers
-  remote_user: root
-  sudo: yes
+- hosts: lab_servers
+  remote_user: ubuntu
+  become: yes
   vars_files:
     - vars.yml
 
   tasks:
+
     - name: Install system packages
-      apt: pkg={{ item }} update-cache=yes
+      apt:  update_cache=yes
+
+    - name: Install system packages
+      apt: pkg={{ item }} state=present
       with_items: "{{ system_packages }}"
 
-    - name: Config enable wsgi module apache
-      apache2_module:
+    - name: Adding oficial docker GPG key
+      command: curl -fsSL https://download.docker.com/linux/ubuntu/gpg
+
+    - name: Adding oficial docker GPG key
+      apt_key: id=9DC858229FC7DD38854AE2D88D81803C0EBFCD88 url="https://download.docker.com/linux/ubuntu/gpg" state=absent
+
+    - name: Adding docker repository
+      command: add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable"
+
+    - name: installing Docker
+      apt: name=docker-ce state=present update_cache=yes allow_unauthenticated=yes
+
+    - name: installing docker-py
+      pip: name=docker-py state=present
+
+
+    - name: upload the site directory to the docker host
+      synchronize: src=site dest=/tmp
+
+    - name: Deleting the Docker container if
+      docker_container:
+        name: myflaskapp
+        hostname: app
+        image: myflaskapp:1.0
+        network_mode: host
+        restart_policy: always
+        state: absent
+        interactive: yes
+        ports:
+         - 5000:5000
+
+    - name: build the image
+      docker_image:
+        name: myflaskapp
+        tag: 1.0
+        path: /tmp/site
+        state: absent
+
+    - name: build the image
+      docker_image:
+        name: myflaskapp
+        tag: 1.0
+        path: /tmp/site
         state: present
-        name: wsgi
-
-#    - name: Clone project repo
-#      git:
-#        repo: '{{ project_repo }}'
-#        dest: '{{ source_repo }}'
-#
-#    - name: Move project to /var/www
-#      command: mv -v {{ source_repo }} /var/www/
-
-    - name: Install pip requirements
-      pip:
-        requirements: '{{ install_root }}requirements.txt'
-        virtualenv: '/venv'
-
-    - name: copy apache config
-      template: src=files/FlaskApp.conf dest=/etc/apache2/sites-available/FlaskApp.conf
-
-    - name: Create the .wsgi File
-      template: src=files/flaskapp.wsgi dest=/var/www/python_projects/flaskapp.wsgi
-
-    - name: a2ensite FlaskApp
-      command: a2ensite FlaskApp
-
-    - name: restart apache
-      service: name=apache2 state=restarted
 
 
+    - name: Creating the Docker container
+      docker_container:
+        name: myflaskapp
+        hostname: app
+        image: myflaskapp:1.0
+        network_mode: host
+        restart_policy: always
+        state: started
+        interactive: yes
+        ports:
+         - 5000:5000
 
-
-
-
-#- include: deploy.yml
